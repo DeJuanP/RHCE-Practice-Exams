@@ -1,0 +1,36 @@
+---
+- name: Configure systems
+  hosts: all
+  become: true
+
+  roles:
+   - role: common
+     tags: common
+
+- import_playbook: playbooks/services.yml
+  tags: service
+
+- import_playbook: playbooks/users_motd.yml
+  tags: users
+
+- import_playbook: playbooks/storage.yml
+  tags: storage
+
+- import_playbook: playbooks/report.yml
+  tags: report
+
+- import_playbook: playbooks/security.yml
+  tags: security
+
+- import_playbook: playbooks/webserver.yml
+  tags: webservers
+
+- name: Create a dynamic hosts
+  hosts: localhost
+  become: true
+
+  tasks:
+   - name: Add dynamic hosts
+     ansible.builtin.add_host:
+      name: server5.exam.com
+      groups: exam_group

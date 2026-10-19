@@ -1,0 +1,11 @@
+---
+- name: MOTD and Users
+  hosts: prod
+  become: true
+
+  tasks:
+   - name: Create user Automation
+     ansible.builtin.user:
+      name: blankman
+      shell: /bin/bash
+

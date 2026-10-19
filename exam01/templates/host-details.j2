@@ -1,0 +1,6 @@
+{% for host in ansible_play_hosts %}
+ Hostname: {{ hostvars[host]["ansible_hostname"] }}
+ IP: {{ hostvars[host]["ansible_default_ipv4"]["address"] }}
+ Memory: {{ hostvars[host]["ansible_memtotal_mb"] }} MB
+ OS version: {{ hostvars[host]["ansible_os_family"] }} - {{ hostvars[host]["ansible_distribution_version"] }}
+{% endfor %}

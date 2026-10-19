@@ -1,0 +1,6 @@
+---
+# vars file for common
+packages:
+ - vim
+ - curl
+ - git

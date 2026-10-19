@@ -1,0 +1,38 @@
+---
+- name: Security and SELinux
+  hosts: all
+  become: true
+
+  tasks:
+   - name: Enable SELinux
+     ansible.posix.selinux:
+      policy: targeted
+      state: enforcing
+
+   - name: Allow httpd to connect to network
+     ansible.posix.seboolean:
+      name: httpd_can_network_connect
+      state: true
+      persistent: true
+
+   - name: Install and Start firewalld
+     ansible.builtin.dnf:
+      name: firewalld
+      state: present
+
+   - name: Start firewalld
+     ansible.builtin.service:
+      name: firewalld
+      state: started
+      enabled: yes
+
+   - name: Permanently enable multiple services
+     ansible.posix.firewalld:
+      service: "{{ item }}"
+      state: enabled
+      permanent: true
+      immediate: true
+     loop:
+      - http
+      - https
+      - ssh

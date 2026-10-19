@@ -1,0 +1,11 @@
+[webservers]
+node1 ansible_host=192.168.10.175
+node3 ansible_host=192.168.10.121
+
+[databases]
+node2 ansible_host=192.168.10.115
+node4 ansible_host=192.168.10.187
+
+[prod:children]
+webservers
+databases

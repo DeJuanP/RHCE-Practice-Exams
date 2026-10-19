@@ -1,0 +1,41 @@
+---
+- name: Gather facts, variables, etc in a report
+  hosts: all
+  become: true
+  gather_facts: true
+
+  tasks:
+   - name: Create custom fact directory
+     ansible.builtin.file:
+      path: /etc/ansible/facts.d
+      state: directory
+      mode: '0644'
+
+   - name: Create custom ansible fact
+     ansible.builtin.copy:
+      dest: /etc/ansible/facts.d/admin_info.fact
+      content: |
+       [system]
+       admin=super_dj
+      mode: '0644'
+
+   - name: Refresh ansible facts
+     ansible.builtin.setup:
+      filter: ansible_local
+
+   - name: Install httpd if more than 1GB of memory
+     ansible.builtin.dnf:
+      name: httpd
+      state: present
+     when: 
+      - "'databases' in group_names"
+      - ansible_memtotal_mb > 1000
+      - ansible_local.admin_info.system.admin == 'super_dj'
+
+   - name: Generate report on control node
+     ansible.builtin.template:
+      src: ../templates/host-details.j2
+      dest: /reports/host-report.txt
+      mode: '0644'
+     delegate_to: localhost
+     run_once: true

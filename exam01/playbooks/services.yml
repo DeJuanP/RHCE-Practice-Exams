@@ -1,0 +1,64 @@
+---
+- name: Configure webservers
+  hosts: webservers
+  become: true
+
+  vars:
+   packages:
+    - httpd
+    - firewalld
+  tasks:
+   - name: Install httpd
+     ansible.builtin.dnf:
+      name: "{{ item }}"
+      state: present
+     loop: 
+      - httpd
+      - firewalld
+
+   - name: Start and Enable httpd
+     ansible.builtin.service:
+      name: "{{ item }}"
+      state: started
+      enabled: yes
+     loop: "{{ packages }}"
+
+   - name: Configure httpd server name
+     ansible.builtin.lineinfile:
+      path: /etc/httpd/conf/httpd.conf
+      regexp: '^#?ServerName'
+      line: "ServerName {{ ansible_hostname }}"
+     notify: Restart httpd
+
+   - name: Check if httpd is running
+     ansible.builtin.command: systemctl is-active httpd
+     register: service_check
+     changed_when: false
+
+   - name: Display message if running
+     ansible.builtin.debug:
+      msg: "HTTPD is running"
+     when: service_check.rc == 0
+     failed_when: service_check.rc != 0
+
+  handlers:
+   - name: Restart httpd
+     ansible.builtin.service:
+      name: httpd
+      state: restarted
+
+- name: Configure databases
+  hosts: databases
+  become: true
+
+  tasks:
+   - name: Install MariaDB
+     ansible.builtin.dnf:
+      name: mariadb-server
+      state: present
+
+   - name: Start and Enable MariaDB
+     ansible.builtin.service:
+      name: mariadb
+      state: started
+      enabled: yes

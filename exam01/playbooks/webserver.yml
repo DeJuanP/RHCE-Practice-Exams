@@ -1,0 +1,41 @@
+---
+- name: Web Server Deployment
+  hosts: webservers
+  become: true
+
+  tasks:
+   - name: Install httpd and mod_ssl
+     ansible.builtin.dnf:
+      name: "{{ item }}"
+      state: present
+     loop:
+      - policycoreutils-python-utils
+      - httpd
+      - mod_ssl
+
+   - name: Create custom index.html
+     ansible.builtin.copy:
+      dest: /var/www/html/index.html
+      content: |
+       RHCE Practice Web Server - {{ inventory_hostname }}
+
+   - name: Configure firewall
+     ansible.posix.firewalld:
+      service: "{{ item }}"
+      state: enabled
+      permanent: true
+      immediate: true
+     loop:
+      - http
+      - https
+
+   - name: Set SELinux context
+     community.general.sefcontext:
+      target: '/var/www/html(/.*)?'
+      setype: httpd_sys_content_t
+      state: present
+
+   - name: Restore context to related files
+     ansible.builtin.command:
+      cmd: restorecon -R -v /var/www/html
+     changed_when: false

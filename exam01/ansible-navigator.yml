@@ -1,0 +1,14 @@
+---
+ansible-navigator:
+ mode: stdout
+ execution-environment:
+  enabled: true
+  image: localhost/rhce-ee:1.0
+  pull:
+   policy: never
+  volume-mounts:
+   - src: /home/ansible/report-files
+     dest: /reports
+     options: Z
+ playbook-artifact:
+  enable: false

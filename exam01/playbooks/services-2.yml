@@ -1,0 +1,45 @@
+---
+- name: Loops and Handlers
+  hosts: all
+  become: true
+
+  vars:
+   packages:
+    - name: 
+       - httpd
+       - firewalld
+      group: webservers
+    - name: 
+       - mariadb-server
+       - firewalld
+      group: databases
+    
+  tasks:
+   - name: Install packages
+     ansible.builtin.dnf:
+      name: "{{ item.name }}"
+      state: present
+     when: '"{{ item.group }}" in group_names' 
+     loop: "{{ packages }}"
+     register: install_results
+
+   - name: Start services
+     ansible.builtin.service:
+      name: "{{ item.name }}"
+      state: started
+     when: '"{{ item.group }}" in group_names'
+     loop: "{{ packages }}"
+
+   - name: Configure httpd server name
+     ansible.builtin.lineinfile:
+      path: /etc/httpd/conf.httpd.conf
+      regexp: '^#?ServerName'
+      line: ServerName "{{ ansible_hostname }}"
+     notify: Restart httpd
+     failed_when: install_results.rc != 0
+
+  handlers:
+   - name: Restart httpd
+     ansible.builtin.service:
+      name: httpd
+      state: restarted
