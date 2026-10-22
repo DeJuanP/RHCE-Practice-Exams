@@ -1,0 +1,24 @@
+---
+- name: Repository Configuration
+  hosts: node4
+  become: true
+
+  tasks:
+   - name: Add multiple repositories into the same file (1/2)
+     ansible.builtin.yum_repository:
+      name: training-base
+      description: Training Base Repository
+      file: training-base
+      baseurl: file:///repo/BaseOS
+      gpgcheck: no
+      enabled: yes
+
+   - name: Add multiple repositories into the same file (1/2)
+     ansible.builtin.yum_repository:
+      name: training-appstream
+      description: Training Base Repository
+      file: training-appstream
+      baseurl: file:///repo/AppStream
+      gpgcheck: no
+      enabled: yes
+

@@ -1,0 +1,5 @@
+---
+ansible-navigator:
+ mode: stdout
+ execution-environment:
+  image: localhost/rhce-ee:1.0

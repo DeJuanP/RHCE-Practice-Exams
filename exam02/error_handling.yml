@@ -1,0 +1,17 @@
+---
+- name: Error handling
+  hosts: managed
+  become: true
+
+  tasks:
+   - name: Check for file
+     ansible.builtin.command: /etc/application-release
+     register: file_check
+     changed_when: false
+     failed_when: false
+    
+   - name: Create config-complete
+     ansible.builtin.copy:
+      dest: /tmp/configuration-complete
+      content: |
+       Configuration processing completed

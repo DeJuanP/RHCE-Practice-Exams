@@ -1,0 +1,7 @@
+---
+- name: Site configuration
+  hosts: web
+  become: true
+
+  roles:
+   - webserver_role

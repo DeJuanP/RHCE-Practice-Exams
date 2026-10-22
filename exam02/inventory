@@ -1,0 +1,19 @@
+[web]
+node1 ansible_host=100.84.178.49
+node2 ansible_host=100.106.46.23 http_port=8080
+
+[storage]
+node3 ansible_host=100.80.15.123
+
+[development]
+node4 ansible_host=100.112.24.50
+
+[production]
+node1 ansible_host=100.84.178.49
+node2 ansible_host=100.106.46.23
+node3 ansible_host=100.80.15.123
+
+[managed:children]
+web
+storage
+development

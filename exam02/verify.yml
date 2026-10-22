@@ -1,0 +1,53 @@
+---
+- name: Verify configuration
+  hosts: managed
+  become: true
+
+  tasks:
+   - name: Verify chronyd is running
+     ansible.builtin.command: systemctl is-active chronyd
+     register: chronyd_check
+     changed_when: false
+
+   - name: Display chronyd_check
+     ansible.builtin.debug:
+      msg: chronyd is running on managed hosts
+     when: chronyd_check.rc == 0
+
+##Check if /data exist
+   - name: Check if /data is mounted
+     ansible.builtin.command: findmnt /data
+     register: data_check
+     when: ansible_hostname == 'node3'
+
+   - name: Display data_check
+     ansible.builtin.debug:
+      msg: "/data is mounted on node3"
+     when: ansible_hostname == 'node3'
+
+   - name: Check for user deploy
+     ansible.builtin.command: id deploy
+     register: user_check
+     changed_when: false
+
+   - name: Display user_check
+     ansible.builtin.debug:
+      msg: deploy exists on managed hosts
+     when: user_check.rc == 0
+
+##Check if /etc/motd exists
+
+- name: Check web host configuration
+  hosts: web
+  become: true
+  tasks:
+   - name: Verify httpd is running
+     ansible.builtin.command: systemctl is-active httpd
+     register: httpd_check
+     changed_when: false
+
+   - name: Display httpd_check
+     ansible.builtin.debug:
+      msg: httpd is running on web hosts
+     when: httpd_check.rc == 0
+

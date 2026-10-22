@@ -1,0 +1,18 @@
+---
+- name: Mount the loaded repo
+  hosts: managed
+  become: true
+
+  tasks:
+   - name: Create a directory if it does not exist
+     ansible.builtin.file:
+      path: /repo
+      state: directory
+      mode: '0755'
+
+   - name: Mount ISO
+     ansible.posix.mount:
+      path: /repo
+      src: /dev/sr0
+      fstype: iso9660
+      state: mounted

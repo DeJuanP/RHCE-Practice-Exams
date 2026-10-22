@@ -1,0 +1,33 @@
+---
+- name: Service Recovery with Blocks
+  hosts: web
+  become: true
+
+  tasks:
+   - name: Block Recovery
+     block:
+      - name: Verify web-server configuration
+        ansible.builtin.command: apachectl configtest
+        register: web_check
+        
+
+      - name: Restart httpd service
+        ansible.builtin.service:
+         name: httpd
+         state: restarted
+
+     rescue:
+      - name: Create web Recovery
+        ansible.builtin.copy:
+         dest: /root/web-recovery-required
+         content: |
+          Web service recovery required
+         mode: '0644'
+
+     always:
+      - name: Run web complete
+        ansible.builtin.copy:
+         dest: /root/web-check-completed
+         content: |
+          Web service check completed
+         mode: '0644'

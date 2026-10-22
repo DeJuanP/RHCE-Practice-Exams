@@ -1,0 +1,46 @@
+---
+- name: File management and archiving
+  hosts: node3
+  become: true
+  
+  tasks:
+   - name: Create a directory if it does not exist
+     ansible.builtin.file:
+      path: "{{ item }}"
+      state: directory
+      owner: root
+      group: root
+      mode: '0755'
+     loop:
+      - /data/app
+      - /data/archive
+
+
+   - name: Create files
+     ansible.builtin.file:
+      path: "/data/app/{{ item }}"
+      owner: root
+      group: root
+      mode: '0755'
+      state: touch
+     loop:
+      - app.conf
+      - database.conf
+      - logging.conf
+
+
+   - name: Template a file to /data/app
+     ansible.builtin.template:
+      src: templates/file.conf.j2
+      dest: "/data/app/{{ item }}"
+      mode: '0755'
+     loop:
+      - app.conf
+      - database.conf
+      - logging.conf
+
+   - name: Compress directory
+     community.general.archive:
+      path: /data/app
+      dest: /data/archive/application-config.tar.gz
+      format: gz

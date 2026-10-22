@@ -1,0 +1,30 @@
+---
+- name: Managed Node Access
+  hosts: managed
+  become: true
+
+  tasks:
+   - name: Ensure group automation exists
+     ansible.builtin.group:
+      name: automation
+      state: present
+
+   - name: Create user "deploy"
+     ansible.builtin.user:
+      name: deploy
+      shell: /bin/bash
+      groups: automation
+      append: yes
+      generate_ssh_key: yes
+      ssh_key_file: files/deploy_key.pub
+
+
+   - name: Give user "deploy" sudo access
+     ansible.builtin.copy:
+      dest: /etc/sudoers.d/deploy
+      content: |
+       deploy    ALL=(ALL)       NOPASSWD: ALL
+      owner: root
+      group: root
+      mode: '0440'
+      validate: /usr/sbin/visudo -csf %s

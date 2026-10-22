@@ -1,0 +1,20 @@
+---
+- name: Command Result and Registered Variables
+  hosts: managed
+  become: true
+
+  tasks:
+   - name: Run expected command
+     ansible.builtin.command: "uname -r"
+     register: system_check
+     changed_when: false
+
+   - name: Display system_check
+     ansible.builtin.debug:
+      var: system_check
+
+   - name: Create kernel-version.txt
+     ansible.builtin.copy:
+      dest: /root/kernel-version.txt
+      content: |
+       Running kernel: {{ system_check.stdout }}

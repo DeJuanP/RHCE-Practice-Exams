@@ -1,0 +1,19 @@
+---
+- name: Scheduled tasks
+  hosts: node4
+  become: true
+
+  tasks:
+   - name: Create log file
+     ansible.builtin.file:
+      path: /var/log/backup-check.log
+      state: touch
+      mode: '0644'
+
+   - name: Create cron job
+     ansible.builtin.cron:
+      name: "'{{ ansible_hostname }}' - Backup Log"
+      minute: "30"
+      hour: "2"
+      job: echo "backup check" >> /var/log/backup-check.log
+      user: root

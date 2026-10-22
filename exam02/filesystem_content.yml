@@ -1,0 +1,26 @@
+---
+- name: Permissions and Links
+  hosts: production
+  become: true
+
+  tasks:
+   - name: Create a directory if it does not exist
+     ansible.builtin.file:
+      path: /opt/company
+      state: directory
+      owner: root
+      group: ops
+      mode: '2775'
+
+   - name: Create README
+     ansible.builtin.copy:
+      dest: /opt/company/README
+      content: |
+       Production shared directory
+      
+   - name: Create a symbolic link
+     ansible.builtin.file:
+      src: /opt/company
+      dest: /usr/local/share/company
+      state: link
+

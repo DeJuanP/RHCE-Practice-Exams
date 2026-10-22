@@ -1,0 +1,30 @@
+---
+- name: Common System Configuration
+  hosts: managed
+  become: true
+
+  tasks:
+   - name: Install packaages
+     ansible.builtin.dnf:
+      name:
+       - vim-enhanced
+       - bash-completion
+       - tar
+       - chrony
+      state: present
+
+   - name: Start and enable chronyd
+     ansible.builtin.service:
+      name: chronyd
+      state: started
+      enabled: yes
+
+   - name: Create MOTD
+     ansible.builtin.copy:
+      dest: /etc/motd
+      content: |
+       Managed by Ansible
+       System: {{ inventory_hostname }}
+      owner: root
+      group: root
+      mode: '0644'  

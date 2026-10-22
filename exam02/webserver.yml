@@ -1,0 +1,63 @@
+---
+- name: Web Service
+  hosts: web
+  become: true
+  vars:
+   - http_port: 80
+
+  tasks:
+   - name: Install Apache
+     ansible.builtin.dnf:
+      name: 
+       - httpd
+       - firewalld
+       - policycoreutils-python-utils
+      state: present
+
+   - name: Start and enable services
+     ansible.builtin.service:
+      name: "{{ item }}"
+      state: started
+      enabled: yes
+     loop: 
+      - httpd
+      - firewalld
+
+   - name: Configure firewalld
+     ansible.posix.firewalld:
+      service: http
+      state: enabled
+      permanent: true
+      immediate: true
+
+   - name: Add index.html template
+     ansible.builtin.template:
+      src: templates/index.html.j2
+      dest: /var/www/html/index.html
+      mode: '0644'
+     notify: Restart httpd
+
+  handlers:
+   - name: Restart httpd
+     ansible.builtin.service:
+      name: httpd
+      state: restarted
+
+- name: Node2 web Configuration
+  hosts: node2
+  become: true
+
+  tasks:
+   - name: Allow Apache to listen on tcp port 8080
+     community.general.seport:
+      ports: 8080
+      proto: tcp
+      setype: http_port_t
+      state: present
+
+   - name: Permit traffic on port 8080/tcp
+     ansible.posix.firewalld:
+      port: 8080/tcp
+      permanent: true
+      immediate: true
+      state: enabled

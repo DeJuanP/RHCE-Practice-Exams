@@ -1,0 +1,39 @@
+---
+- name: Storage
+  hosts: node3
+  become: true
+
+  tasks:
+   - name: Create a volume group on top of /dev/sdb
+     community.general.lvg:
+      vg: data_vg
+      pvs: /dev/sdb
+
+   - name: Create a logical volume the size of all remaining space in the volume group
+     community.general.lvol:
+      vg: data_vg
+      lv: data_lv
+      size: 100%FREE
+      shrink: false
+
+   - name: Create a directory if it does not exist
+     ansible.builtin.file:
+      path: /data
+      state: directory
+      mode: '0755'
+
+   - name: Create a ext2 filesystem on /dev/sdb1
+     community.general.filesystem:
+      fstype: xfs
+      dev: /dev/data_vg/data_lv
+
+   - name: Mount logical volume
+     ansible.posix.mount:
+      path: /data
+      src: /dev/data_vg/data_lv
+      fstype: xfs
+      state: mounted
+
+
+
+

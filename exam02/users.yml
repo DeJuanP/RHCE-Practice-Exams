@@ -1,0 +1,43 @@
+---
+- name: Users, Groups and Loops
+  hosts: production
+  become: true
+
+  vars:
+   users:
+    - ops_alice
+    - ops_bob
+    - ops_charlie
+
+  tasks:
+   - name: Ensure group OPS exists
+     ansible.builtin.group:
+      name: ops
+      state: present
+      gid: 4000
+
+   - name: Create Users
+     ansible.builtin.user:
+      name: "{{ item }}"
+      shell: /bin/bash
+      groups: ops
+      append: yes
+      create_home: yes
+      password_lock: yes
+      expires: -1
+     loop:
+      - ops_alice
+      - ops_bob
+      - ops_charlie
+     
+   - name: Add README
+     ansible.builtin.copy:
+      dest: /home/{{ item }}/README
+      content: |
+       This account is managed by Ansible
+      owner: "{{ item }}"
+      group: ops
+     loop:
+      - ops_alice
+      - ops_bob
+      - ops_charlie
